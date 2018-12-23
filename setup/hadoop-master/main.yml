@@ -1,0 +1,67 @@
+---
+# https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04
+- hosts: masters
+  become_user: root
+  become: yes
+  become_method: sudo
+  roles:
+    - ./hadoop-common
+  tasks:
+    - name: core-site.xml
+      blockinfile:
+        path: ~/my-hadoop-install/hadoop-3.0.1/etc/hadoop/core-site.xml
+        become: yes
+        block: |
+          <configuration>
+            <property>
+                <name>fs.defaultFS</name>
+                <value>hdfs://{{ master-ip }}:9000</value>
+            </property>
+          </configuration>
+    - name: hdfs-site.xml
+      blockinfile:
+        path: ~/my-hadoop-install/hadoop-3.0.1/etc/hadoop/core-site.xml
+        become: yes
+        block: |
+          <configuration>
+              <property>
+                  <name>dfs.replication</name>
+                  <value>3</value>
+              </property>
+              <property>
+                  <name>dfs.namenode.name.dir</name>
+                  <value>/usr/local/hadoop/hdfs/data</value>
+              </property>
+          </configuration>
+
+    - name: mapred-site.xml
+      blockinfile:
+        path: ~/my-hadoop-install/hadoop-3.0.1/etc/hadoop/core-site.xml
+        become: yes
+        block: |
+          <configuration>
+            <property>
+                <name>mapreduce.framework.name</name>
+                <value>yarn</value>
+            </property>
+          </configuration>
+
+    - name: yarn-site.xml
+      blockinfile:
+        path: ~/my-hadoop-install/hadoop-3.0.1/etc/hadoop/core-site.xml
+        become: yes
+        block: |
+          <configuration>
+            <property>
+                <name>yarn.nodemanager.aux-services</name>
+                <value>mapreduce_shuffle</value>
+            </property>
+            <property>
+                <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+                <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+            </property>
+            <property>
+                <name>yarn.resourcemanager.hostname</name>
+                <value>{{ master-ip }}</value>
+              </property>
+          </configuration>
